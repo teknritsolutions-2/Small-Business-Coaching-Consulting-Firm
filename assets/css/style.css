@@ -10093,13 +10093,25 @@ body:not(.page-about) .section-intro.section-intro--split {
 /* ============================== Mobile And Tablet Cleanup ============================== */
 
 body.menu-open {
-  overflow: hidden;
+  overflow-x: clip;
+}
+
+body.menu-open .site-header {
+  position: sticky !important;
+  top: 0;
+  z-index: 120;
 }
 
 @media (max-width: 1024px) {
   .mobile-menu {
-    position: relative;
-    z-index: 1;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 121;
+    background: rgba(246, 252, 253, 0.98);
+    border-top: 1px solid rgba(8, 34, 43, 0.08);
+    box-shadow: 0 14px 34px rgba(7, 29, 37, 0.14);
     max-height: calc(100dvh - 84px);
     overflow-y: auto;
     overscroll-behavior: contain;
@@ -10150,9 +10162,13 @@ body.site-body:not(.page-dashboard-shell) .site-header {
 
 /* Prevent right-side horizontal bleed in tablet/mobile across public pages. */
 @media (max-width: 1024px) {
-  html,
-  body.site-body {
+  /* html: hidden prevents horizontal scroll; body: clip does NOT create a
+     scroll container, keeping position:sticky on .site-header working. */
+  html {
     overflow-x: hidden;
+  }
+  body.site-body {
+    overflow-x: clip;
   }
 
   body.site-body:not(.page-dashboard-shell) :is(
@@ -12468,13 +12484,10 @@ main:has(> .section--deep:last-child) {
     height: 160px;
   }
 }
-/* Root-level horizontal overflow prevention.
-   overflow-x: hidden on body (not html) prevents horizontal scroll without
-   clipping bottom content on iOS Safari — the browser propagates body
-   overflow to the viewport scroll container, keeping vertical scroll intact. */
-body.site-body {
-  overflow-x: hidden;
-}
+/* Horizontal overflow: html already has overflow-x: hidden (line 140) which
+   prevents page-level horizontal scroll. Body stays at overflow-x: clip (set
+   by the original rule) so it does NOT become a scroll container — this is
+   required for position: sticky on .site-header to work correctly. */
 img, video, iframe {
   max-width: 100%;
 }
@@ -12501,9 +12514,11 @@ body.site-body:not(.page-dashboard-shell) .site-header {
 }
 
 @media (max-width: 1024px) {
-  html,
-  body.site-body {
+  html {
     overflow-x: hidden;
+  }
+  body.site-body {
+    overflow-x: clip;
   }
 
   body.site-body:not(.page-dashboard-shell) .site-footer {

@@ -30,6 +30,15 @@
       gsap.ticker.add(function (time) { lenis.raf(time * 1000); });
       gsap.ticker.lagSmoothing(0);
     }
+
+    /* Pause Lenis while the mobile menu is open so the page can't scroll behind it */
+    new MutationObserver(function () {
+      if (document.body.classList.contains('menu-open')) {
+        lenis.stop();
+      } else {
+        lenis.start();
+      }
+    }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
   }
 
   /* ============================== Hero Entrance ============================== */
