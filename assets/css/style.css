@@ -137,7 +137,7 @@ html {
   -moz-osx-font-smoothing: grayscale;
   scroll-padding-top: 96px;
   scroll-padding-bottom: env(safe-area-inset-bottom, 0px);
-  overflow-x: clip;
+  overflow-x: hidden;
 }
 
 body {
@@ -1077,7 +1077,7 @@ html:not([data-theme="dark"]) .section--warm > .container {
 
 .site-footer {
   margin-top: 72px;
-  padding-block: 56px 28px;
+  padding-block: clamp(56px, 6vw, 74px);
   background: #08222b;
   /* overflow: clip clips the newsletter + footer-bottom on notched phones */
   overflow-x: clip;
@@ -1104,6 +1104,11 @@ html:not([data-theme="dark"]) .section--warm > .container {
 
 .site-footer a {
   color: rgba(255, 255, 255, 0.88);
+  transition: color 0.18s ease;
+}
+
+.site-footer a:hover {
+  color: #7dcde8;
 }
 
 .site-footer span {
@@ -10134,6 +10139,108 @@ body.menu-open {
   }
 }
 
+/* ============================== Public Responsive Stability Patch ============================== */
+
+/* Keep public header sticky above all section effects. */
+body.site-body:not(.page-dashboard-shell) .site-header {
+  position: sticky !important;
+  top: 0;
+  z-index: 120;
+}
+
+/* Prevent right-side horizontal bleed in tablet/mobile across public pages. */
+@media (max-width: 1024px) {
+  html,
+  body.site-body {
+    overflow-x: hidden;
+  }
+
+  body.site-body:not(.page-dashboard-shell) :is(
+    .site-footer,
+    .site-footer > .container,
+    .footer-grid,
+    .footer-grid > *,
+    .footer-bottom,
+    .footer-bottom > *,
+    .footer-bottom__info,
+    .footer-bottom__info > *,
+    .newsletter-form,
+    .newsletter-form__row,
+    .newsletter-form__row > *
+  ) {
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  body.site-body:not(.page-dashboard-shell) .site-footer {
+    overflow: visible !important;
+    padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+/* Tablet: give containers the same side breathing room as other public sections. */
+@media (min-width: 768px) and (max-width: 1024px) {
+  body.site-body:not(.page-dashboard-shell) .container {
+    width: min(100% - 4rem, var(--container-width)) !important;
+  }
+}
+
+/* Mobile footer + menu visibility cleanup so bottom items are reachable. */
+@media (max-width: 767px) {
+  body.site-body:not(.page-dashboard-shell) .footer-grid {
+    grid-template-columns: 1fr !important;
+    gap: 18px !important;
+  }
+
+  body.site-body:not(.page-dashboard-shell) .footer-grid > * {
+    grid-column: 1 / -1 !important;
+  }
+
+  body.site-body:not(.page-dashboard-shell) .footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  body.site-body:not(.page-dashboard-shell) .mobile-menu {
+    max-height: calc(100svh - 84px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+
+  body.site-body:not(.page-dashboard-shell) .mobile-menu__inner {
+    padding-bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* Kill remaining horizontal bleed from decorative section layers on mobile/tablet. */
+@media (max-width: 1024px) {
+  body.site-body:not(.page-dashboard-shell) main,
+  body.site-body:not(.page-dashboard-shell) .section,
+  body.site-body:not(.page-dashboard-shell) .section--contrast,
+  body.site-body:not(.page-dashboard-shell) .section--warm,
+  body.site-body:not(.page-dashboard-shell) .section--deep,
+  body.site-body:not(.page-dashboard-shell) .hero-v2,
+  body.site-body:not(.page-dashboard-shell) .page-hero,
+  body.site-body:not(.page-dashboard-shell) .page-hero-omnis,
+  body.site-body:not(.page-dashboard-shell) .site-footer {
+    overflow-x: hidden !important;
+  }
+
+  body.site-body:not(.page-dashboard-shell) .section--deep::before,
+  body.site-body:not(.page-dashboard-shell) .section--deep::after,
+  body.site-body:not(.page-dashboard-shell) .hero-v2::before,
+  body.site-body:not(.page-dashboard-shell) .hero-v2::after,
+  body.site-body:not(.page-dashboard-shell) .teal-mesh {
+    max-width: 100%;
+  }
+}
+
+body.site-body:not(.page-dashboard-shell) .overflow-clamped {
+  overflow-x: hidden !important;
+}
+
 @media (max-width: 520px) {
   .footer-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -10325,6 +10432,8 @@ body.site-body:not(.page-dashboard-shell):not(.page-dashboard-open) :is(
 
 .dashboard-sidebar {
   top: 96px;
+  max-height: calc(100dvh - 96px);
+  overflow-y: auto;
 }
 
 /* Restore featured proof stats visibility on home-page-2 with rounded cards. */
@@ -12068,7 +12177,8 @@ main:has(> .section--deep:last-child) {
 @media (max-width: 900px) {
   .site-footer {
     overflow: visible !important;
-    padding-bottom: calc(32px + env(safe-area-inset-bottom, 0px)) !important;
+    padding-block: clamp(48px, 6vw, 64px) !important;
+    padding-bottom: calc(clamp(48px, 6vw, 64px) + env(safe-area-inset-bottom, 0px)) !important;
   }
 
   .site-footer > .container {
@@ -12082,12 +12192,19 @@ main:has(> .section--deep:last-child) {
     align-items: start !important;
   }
 
+  /* Reset forced full-width set by earlier 900px blocks (universal selector resets low-specificity rules) */
   .footer-grid > * {
+    grid-column: auto !important;
     min-width: 0;
   }
 
-  .footer-grid > :first-child,
+  /* Also reset :last-child — needs matching specificity (0,2,0) to beat the existing :last-child rule */
   .footer-grid > :last-child {
+    grid-column: auto !important;
+  }
+
+  /* Brand always spans full width */
+  .footer-grid > :first-child {
     grid-column: 1 / -1 !important;
   }
 
@@ -12107,7 +12224,10 @@ main:has(> .section--deep:last-child) {
     min-height: 0 !important;
   }
 
+  /* Newsletter form: left-aligned, constrained to 300px so it doesn't fill the whole column */
   .site-footer .newsletter-form {
+    max-width: 300px;
+    width: 100%;
     gap: 10px;
   }
 
@@ -12118,7 +12238,7 @@ main:has(> .section--deep:last-child) {
   }
 
   .site-footer .newsletter-form__row > * {
-    width: 100% !important;
+    width: 100%;
     min-width: 0;
   }
 
@@ -12139,10 +12259,21 @@ main:has(> .section--deep:last-child) {
 @media (max-width: 560px) {
   .footer-grid {
     grid-template-columns: 1fr !important;
+    gap: 24px !important;
   }
 
   .footer-grid > * {
     grid-column: 1 / -1 !important;
+  }
+
+  /* More breathing room on mobile — matches page section horizontal padding */
+  .site-footer > .container {
+    width: min(100% - 2.5rem, var(--container-width));
+  }
+
+  /* Newsletter form can use full container width on mobile */
+  .site-footer .newsletter-form {
+    max-width: 100%;
   }
 }
 
@@ -12169,5 +12300,258 @@ main:has(> .section--deep:last-child) {
   .page-dashboard-shell .dashboard-sidebar {
     width: min(88vw, 340px) !important;
     max-width: 340px !important;
+  }
+}
+
+/* ============================== CLIENT FIXES ============================== */
+
+/* Fix 1: Cap heading font-weights — headings ≤ 600, h5-h6 ≤ 500 */
+.site-body h1,
+.site-body h2,
+.site-body h3,
+.site-body h4 {
+  font-weight: 600;
+}
+.site-body h5,
+.site-body h6 {
+  font-weight: 500;
+}
+.site-body p {
+  font-weight: 400;
+}
+
+/* Fix 2: Home2 hero — 2-column layout so right side is not empty */
+.hero-alt__layout {
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+}
+.hero-alt__copy {
+  max-width: 100%;
+}
+.hero-alt__media-band {
+  max-width: 100%;
+}
+@media (max-width: 900px) {
+  .hero-alt__layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Fix 3: Footer newsletter — stacked layout, left-aligned, constrained width */
+.site-footer .newsletter-form {
+  max-width: 300px;
+  width: 100%;
+  align-items: start;
+}
+.site-footer .newsletter-form__row {
+  grid-template-columns: 1fr !important;
+}
+.site-footer .newsletter-form__row > * {
+  width: 100%;
+}
+
+/* Fix 4: Hero stats — stay on a single row at all viewport sizes */
+.hero-v2__stats {
+  flex-wrap: nowrap !important;
+  gap: clamp(12px, 2vw, 32px) !important;
+}
+.hero-v2__stat {
+  min-width: 0 !important;
+  flex: 1 1 0 !important;
+}
+/* Override the existing 640px wrap rule */
+@media (max-width: 640px) {
+  .hero-v2__stats {
+    flex-wrap: nowrap !important;
+    gap: clamp(10px, 3vw, 20px) !important;
+  }
+  .hero-v2__stat strong {
+    font-size: clamp(1.1rem, 5vw, 1.5rem);
+  }
+  .hero-v2__stat span {
+    font-size: 0.7rem;
+  }
+}
+
+/* Fix 5: Home2 industries carousel — static 4-column grid, no horizontal scroll */
+.scroll-carousel__track {
+  display: grid !important;
+  grid-auto-flow: row !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  overflow: hidden !important;
+  scroll-snap-type: none !important;
+}
+@media (max-width: 900px) {
+  .scroll-carousel__track {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+@media (max-width: 560px) {
+  .scroll-carousel__track {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Fix 6: Active nav link highlighting — underline for desktop, tint for mobile */
+.desktop-nav > a[aria-current="page"] {
+  color: var(--color-primary-dark);
+  border-bottom: 2px solid var(--color-primary);
+  padding-bottom: 2px;
+  font-weight: 700;
+}
+.mobile-menu a[aria-current="page"] {
+  color: var(--color-primary-dark);
+  background: rgba(38, 172, 217, 0.10);
+  border-radius: 6px;
+  padding: 2px 8px;
+}
+/* Fix 6b: Footer active link highlighting */
+.site-footer a[aria-current="page"] {
+  color: var(--color-cyan-light);
+  font-weight: 600;
+}
+
+/* Fix 7: Blog article grid — center-aligned with proper left/right spacing */
+.page-blog .article-grid-v2 {
+  margin-top: 36px;
+}
+@media (max-width: 900px) and (min-width: 601px) {
+  .page-blog .article-grid-v2 > .article-card-v2:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    max-width: calc(50% - 12px);
+    margin-inline: auto;
+    width: 100%;
+  }
+}
+
+/* Fix 8: Dashboard logout link */
+.dashboard-nav__link--logout {
+  margin-top: 8px;
+  border-top: 1px solid var(--color-border);
+  padding-top: 12px;
+  color: var(--color-text-muted);
+}
+.dashboard-nav__link--logout:hover {
+  color: var(--color-accent);
+  background: rgba(38, 172, 217, 0.08);
+}
+[data-theme="dark"] .dashboard-nav__link--logout:hover {
+  background: rgba(38, 172, 217, 0.13);
+}
+
+/* Fix 9: Prevent horizontal overflow / extra space on mobile & tablet */
+/* overflow: hidden fully contains GSAP-transformed teal-mesh blobs (overflow: clip does not) */
+.hero-v2,
+.hero-alt,
+.page-hero-omnis {
+  overflow: hidden;
+}
+/* Ensure all page sections clip horizontal overflow */
+.site-body main > .section,
+.site-body main > .section--deep,
+.site-body main > .section--contrast,
+.site-footer {
+  overflow-x: clip;
+}
+/* Reduce teal-mesh blob sizes on small screens so they stay contained */
+@media (max-width: 768px) {
+  .teal-mesh--1 {
+    width: 280px;
+    height: 280px;
+  }
+  .teal-mesh--2 {
+    width: 200px;
+    height: 200px;
+  }
+  .teal-mesh--3 {
+    width: 160px;
+    height: 160px;
+  }
+}
+/* Root-level horizontal overflow prevention.
+   overflow-x: hidden on body (not html) prevents horizontal scroll without
+   clipping bottom content on iOS Safari — the browser propagates body
+   overflow to the viewport scroll container, keeping vertical scroll intact. */
+body.site-body {
+  overflow-x: hidden;
+}
+img, video, iframe {
+  max-width: 100%;
+}
+
+/* Tablet: move Support & Legal (newsletter) to left column, Client Area to right.
+   Footer children: 1=brand, 2=Company, 3=Offers, 4=Client Area, 5=Support & Legal */
+@media (max-width: 900px) and (min-width: 561px) {
+  .footer-grid > :nth-child(4) { order: 2; }
+  .footer-grid > :nth-child(5) { order: 1; }
+}
+
+/* ============================== Sticky + Footer Final Guardrails ============================== */
+
+body.site-body:not(.page-dashboard-shell) .site-header {
+  position: sticky !important;
+  top: 0;
+  z-index: 120;
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  body.site-body:not(.page-dashboard-shell) .container {
+    width: min(100% - 4rem, var(--container-width)) !important;
+  }
+}
+
+@media (max-width: 1024px) {
+  html,
+  body.site-body {
+    overflow-x: hidden;
+  }
+
+  body.site-body:not(.page-dashboard-shell) .site-footer {
+    overflow: visible !important;
+    padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  body.site-body:not(.page-dashboard-shell) :is(
+    .site-footer > .container,
+    .footer-grid,
+    .footer-grid > *,
+    .footer-bottom,
+    .footer-bottom > *,
+    .footer-bottom__info,
+    .footer-bottom__info > *,
+    .newsletter-form,
+    .newsletter-form__row,
+    .newsletter-form__row > *
+  ) {
+    min-width: 0;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 767px) {
+  body.site-body:not(.page-dashboard-shell) .footer-grid {
+    grid-template-columns: 1fr !important;
+    gap: 18px !important;
+  }
+
+  body.site-body:not(.page-dashboard-shell) .footer-grid > * {
+    grid-column: 1 / -1 !important;
+  }
+
+  body.site-body:not(.page-dashboard-shell) .footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  body.site-body:not(.page-dashboard-shell) .mobile-menu {
+    max-height: calc(100svh - 84px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+
+  body.site-body:not(.page-dashboard-shell) .mobile-menu__inner {
+    padding-bottom: calc(22px + env(safe-area-inset-bottom, 0px));
   }
 }

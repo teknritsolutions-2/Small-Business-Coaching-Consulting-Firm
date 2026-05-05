@@ -468,6 +468,62 @@
     });
   }
 
+  function initOverflowGuard() {
+    if (!document.body.classList.contains('site-body') || document.body.classList.contains('page-dashboard-shell')) {
+      return;
+    }
+
+    var clampSelectors = '.section, .hero-v2, .page-hero, .page-hero-omnis, .site-footer, .mobile-menu, .utility-bar';
+
+    function clearOldClamps() {
+      document.querySelectorAll('.overflow-clamped').forEach(function (node) {
+        node.classList.remove('overflow-clamped');
+      });
+    }
+
+    function clampOverflow() {
+      clearOldClamps();
+
+      var viewportWidth = document.documentElement.clientWidth;
+      var nodes = document.body.querySelectorAll('*');
+
+      nodes.forEach(function (node) {
+        if (!(node instanceof HTMLElement) || node.hidden) {
+          return;
+        }
+
+        var style = window.getComputedStyle(node);
+
+        if (style.display === 'none' || style.visibility === 'hidden' || style.position === 'fixed') {
+          return;
+        }
+
+        var rect = node.getBoundingClientRect();
+
+        if (rect.width <= 0 || rect.height <= 0) {
+          return;
+        }
+
+        if (rect.right > viewportWidth + 1 || rect.left < -1) {
+          var clampRoot = node.closest(clampSelectors);
+
+          if (clampRoot) {
+            clampRoot.classList.add('overflow-clamped');
+          }
+        }
+      });
+    }
+
+    var runClamp = function () {
+      window.requestAnimationFrame(clampOverflow);
+    };
+
+    runClamp();
+    window.addEventListener('load', runClamp);
+    window.addEventListener('resize', runClamp);
+    window.addEventListener('orientationchange', runClamp);
+  }
+
   /* ============================== Shared Bootstrap ============================== */
   function initMain() {
     var loader = createPageLoader();
@@ -483,6 +539,7 @@
 
     initReveal();
     initScrollCarousels();
+    initOverflowGuard();
 
     window.requestAnimationFrame(function () {
       hidePageLoader(loader);
