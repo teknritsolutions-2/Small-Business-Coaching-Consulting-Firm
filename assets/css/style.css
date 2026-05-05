@@ -9929,7 +9929,7 @@ body:not(.page-about) .section-intro.section-intro--split {
   }
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1180px) {
   .mobile-menu {
     padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
   }
@@ -10102,7 +10102,7 @@ body.menu-open .site-header {
   z-index: 120;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1180px) {
   .mobile-menu {
     position: absolute;
     top: 100%;

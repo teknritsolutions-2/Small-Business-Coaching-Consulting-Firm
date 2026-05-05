@@ -123,7 +123,7 @@
     });
 
     window.addEventListener('resize', function () {
-      if (window.innerWidth > 1024) {
+      if (window.innerWidth > 1180) {
         closeMobileMenu(toggleButton, mobileMenu);
       }
     });
