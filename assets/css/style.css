@@ -12578,27 +12578,35 @@ body.site-body:not(.page-dashboard-shell) .site-header {
 
 .page-home .hero-v2__stats {
   display: grid;
-  grid-template-columns: repeat(3, minmax(88px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: clamp(14px, 2vw, 28px);
   align-items: start;
-  width: min(100%, 35rem);
+  width: min(100%, 38rem);
 }
 
 .page-home .hero-v2__stat {
   display: grid;
+  grid-template-rows: minmax(2.1em, auto) minmax(2.9em, auto);
   gap: 8px;
   align-content: start;
   min-width: 0 !important;
 }
 
 .page-home .hero-v2__stat strong {
+  display: block;
+  min-width: 0;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
   white-space: nowrap;
 }
 
 .page-home .hero-v2__stat span {
   display: block;
   line-height: 1.45;
-  text-wrap: balance;
+  overflow-wrap: normal;
+  word-break: normal;
+  text-wrap: pretty;
 }
 
 .page-case-studies .page-hero-omnis {
@@ -12633,6 +12641,7 @@ body.site-body:not(.page-dashboard-shell) .site-header {
   }
 
   .page-home .hero-v2__stat {
+    grid-template-rows: auto auto;
     padding-bottom: 14px;
     border-bottom: 1px solid rgba(255,255,255,0.08);
   }
